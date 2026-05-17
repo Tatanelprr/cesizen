@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center mt-4">
+    <div class="col-12 col-sm-10 col-md-6 col-lg-5">
+        <div class="card p-4">
+            <div class="text-center mb-4">
+                <h1 class="h3 fw-bold">
+                    <img src="{{ asset('images/logo.png') }}" alt="CESIZen" height="50">
+                </h1>
+                <p class="text-muted">Connectez-vous à votre espace</p>
+            </div>
+
+            {% if error %}
+                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
+
+            <form method="post">
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-semibold">Adresse email</label>
+                    <input type="email" id="email" name="email" class="form-control form-control-lg"
+                           value="{{ last_username }}" autocomplete="email" required autofocus>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-semibold">Mot de passe</label>
+                    <input type="password" id="password" name="password" class="form-control form-control-lg"
+                           autocomplete="current-password" required>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="remember_me" name="_remember_me">
+                    <label class="form-check-label" for="remember_me">Se souvenir de moi</label>
+                </div>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                <button type="submit" class="btn btn-primary btn-lg w-100">Se connecter</button>
+            </form>
+
+            <hr class="my-4">
+
+            <div class="text-center">
+                <p class="mb-1">Pas encore de compte ?
+                    <a href="{{ path('app_register') }}" class="text-primary fw-semibold">S'inscrire</a>
+                </p>
+				<a href="#" class="text-muted small">Mot de passe oublié ?</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
