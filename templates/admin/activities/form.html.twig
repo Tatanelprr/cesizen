@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ activity.id ? 'Modifier' : 'Nouvelle' }} activité{% endblock %}
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-7">
+        <a href="{{ path('app_admin_activities') }}" class="btn btn-outline-primary btn-sm mb-4">
+            <i class="bi bi-arrow-left"></i> Retour
+        </a>
+        <div class="card p-4">
+            <h1 class="h4 fw-bold mb-4">{{ activity.id ? 'Modifier l\'activité' : 'Nouvelle activité' }}</h1>
+            {{ form_start(form) }}
+                <div class="mb-3">
+                    {{ form_label(form.titre, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.titre, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.type, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.type, {'attr': {'class': 'form-select'}}) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.description, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 6}}) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.urlMedia, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.urlMedia, {'attr': {'class': 'form-control', 'placeholder': 'https://youtube.com/watch?v=...'}}) }}
+                    <div class="form-text">Lien YouTube, Vimeo ou URL externe.</div>
+                </div>
+                <div class="mb-4 form-check">
+                    {{ form_widget(form.isActive, {'attr': {'class': 'form-check-input'}}) }}
+                    {{ form_label(form.isActive, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Enregistrer</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
