@@ -48,5 +48,19 @@
             <div class="text-muted small">Configurer le référentiel du tracker</div>
         </a>
     </div>
+	<div class="col-12 col-md-4">
+		<a href="{{ path('app_admin_diagnostic_index') }}" class="card p-4 text-decoration-none d-block">
+			<i class="bi bi-clipboard2-pulse fs-2 text-primary"></i>
+			<div class="fw-bold mt-2">Gérer le diagnostic</div>
+			<div class="text-muted small">Configurer le questionnaire Holmes & Rahe</div>
+		</a>
+	</div>
+	<div class="col-12 col-md-4">
+		<a href="{{ path('app_admin_activities') }}" class="card p-4 text-decoration-none d-block">
+			<i class="bi bi-tree fs-2 text-primary"></i>
+			<div class="fw-bold mt-2">Gérer les activités</div>
+			<div class="text-muted small">Ajouter et gérer les activités de détente</div>
+		</a>
+	</div>
 </div>
 {% endblock %}
