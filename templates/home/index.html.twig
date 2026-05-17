@@ -14,28 +14,44 @@
     {% endif %}
 </section>
 
-<section class="row g-4 mb-5">
+<section class="row g-3 mb-5">
     <div class="col-12 col-md-4">
         <div class="card h-100 p-3 text-center">
             <i class="bi bi-journal-text fs-1 text-primary mb-2"></i>
             <h5 class="fw-bold">S'informer</h5>
-            <p class="text-muted small">Accédez à des ressources vérifiées sur la santé mentale et la prévention du stress.</p>
+            <p class="text-muted small">Accédez à des ressources vérifiées sur la santé mentale.</p>
             <a href="{{ path('app_information_index') }}" class="btn btn-outline-primary btn-sm mt-auto">Lire les articles</a>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card h-100 p-3 text-center">
+            <i class="bi bi-clipboard2-pulse fs-1 text-primary mb-2"></i>
+            <h5 class="fw-bold">Diagnostic</h5>
+            <p class="text-muted small">Évaluez votre niveau de stress avec l'échelle Holmes & Rahe.</p>
+            <a href="{{ path('app_diagnostic_index') }}" class="btn btn-outline-primary btn-sm mt-auto">Faire le test</a>
         </div>
     </div>
     <div class="col-12 col-md-4">
         <div class="card h-100 p-3 text-center">
             <i class="bi bi-wind fs-1 text-primary mb-2"></i>
             <h5 class="fw-bold">Respiration</h5>
-            <p class="text-muted small">Pratiquez la cohérence cardiaque pour réduire votre stress en quelques minutes.</p>
+            <p class="text-muted small">Pratiquez la cohérence cardiaque pour réduire votre stress.</p>
             <a href="{{ path('app_breathing') }}" class="btn btn-outline-primary btn-sm mt-auto">Démarrer</a>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card h-100 p-3 text-center">
+            <i class="bi bi-tree fs-1 text-primary mb-2"></i>
+            <h5 class="fw-bold">Activités de détente</h5>
+            <p class="text-muted small">Découvrez des activités pour vous ressourcer au quotidien.</p>
+            <a href="{{ path('app_activity_index') }}" class="btn btn-outline-primary btn-sm mt-auto">Explorer</a>
         </div>
     </div>
     <div class="col-12 col-md-4">
         <div class="card h-100 p-3 text-center">
             <i class="bi bi-heart-pulse fs-1 text-primary mb-2"></i>
             <h5 class="fw-bold">Tracker d'émotions</h5>
-            <p class="text-muted small">Suivez votre état émotionnel au quotidien et visualisez vos tendances.</p>
+            <p class="text-muted small">Suivez votre état émotionnel et visualisez vos tendances.</p>
             {% if is_granted('ROLE_USER') %}
                 <a href="{{ path('app_tracker_index') }}" class="btn btn-outline-primary btn-sm mt-auto">Mon journal</a>
             {% else %}
