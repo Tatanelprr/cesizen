@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon tracker d'émotions{% endblock %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 fw-bold mb-0">Mon journal</h1>
+    <div class="d-flex gap-2">
+        <a href="{{ path('app_tracker_report') }}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-bar-chart"></i> Rapport
+        </a>
+        <a href="{{ path('app_tracker_new') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg"></i> Ajouter
+        </a>
+    </div>
+</div>
+
+{% if entries|length == 0 %}
+    <div class="text-center py-5">
+        <i class="bi bi-emoji-smile fs-1 text-primary"></i>
+        <p class="mt-3 text-muted">Votre journal est vide.<br>Commencez par enregistrer votre première émotion.</p>
+        <a href="{{ path('app_tracker_new') }}" class="btn btn-primary mt-2">Ajouter une émotion</a>
+    </div>
+{% else %}
+    <div class="d-flex flex-column gap-3">
+        {% for entry in entries %}
+        <div class="card p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                         style="width:44px;height:44px;background:{{ entry.emotion.codeColor }}22;border:2px solid {{ entry.emotion.codeColor }}">
+                        <span style="font-size:1.3rem">{{ entry.emotion.icon ?? '🙂' }}</span>
+                    </div>
+                    <div>
+                        <div class="fw-semibold">{{ entry.emotion.libelle }}</div>
+                        <small class="text-muted">
+                            {{ entry.emotion.category.libelle }} ·
+                            Intensité {{ entry.intensite }}/10 ·
+                            {{ entry.dateCreation|date('d/m/Y à H:i') }}
+                        </small>
+                        {% if entry.notePerso %}
+                            <p class="mb-0 mt-1 small fst-italic text-muted">"{{ entry.notePerso }}"</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="d-flex gap-2 ms-2">
+                    <a href="{{ path('app_tracker_edit', {id: entry.id}) }}"
+                       class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <form method="post" action="{{ path('app_tracker_delete', {id: entry.id}) }}"
+                          onsubmit="return confirm('Supprimer cette entrée ?')">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete-entry-' ~ entry.id) }}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

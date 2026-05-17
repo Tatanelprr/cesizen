@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Exercice de respiration{% endblock %}
+
+{% block body %}
+<div class="text-center mb-4">
+    <h1 class="h3 fw-bold">Cohérence cardiaque</h1>
+    <p class="text-muted">Choisissez un rythme respiratoire et suivez le guide.</p>
+</div>
+
+<div class="row justify-content-center mb-4">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="d-flex flex-column gap-3">
+            {% for key, ex in exercises %}
+            <div class="card p-3 exercise-card" data-inhale="{{ ex.inhale }}" data-hold="{{ ex.hold }}" data-exhale="{{ ex.exhale }}" style="cursor:pointer;">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-bold">{{ ex.name }}</div>
+                        <small class="text-muted">{{ ex.description }}</small>
+                        <div class="small mt-1">
+                            <span class="badge bg-primary me-1">Inspiration {{ ex.inhale }}s</span>
+                            {% if ex.hold > 0 %}<span class="badge bg-warning text-dark me-1">Apnée {{ ex.hold }}s</span>{% endif %}
+                            <span class="badge bg-secondary">Expiration {{ ex.exhale }}s</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-sm start-btn">Démarrer</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div id="breathing-modal" class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+     style="background:rgba(0,0,0,0.85);z-index:2000;">
+    <div class="text-center text-white">
+        <div id="breathing-circle" class="rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center"
+             style="width:180px;height:180px;background:var(--cz-green);transition:all 1s ease;opacity:0.9;">
+            <span id="breathing-icon" style="font-size:3rem">🌿</span>
+        </div>
+        <div id="breathing-label" class="fs-3 fw-bold mb-2">Prêt</div>
+        <div id="breathing-counter" class="fs-1 fw-bold mb-4" style="color:var(--cz-yellow)">-</div>
+        <button id="stop-btn" class="btn btn-outline-light btn-lg">Arrêter</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.querySelectorAll('.exercise-card').forEach(card => {
+    card.querySelector('.start-btn').addEventListener('click', () => {
+        const inhale = parseInt(card.dataset.inhale);
+        const hold   = parseInt(card.dataset.hold);
+        const exhale = parseInt(card.dataset.exhale);
+        startBreathing(inhale, hold, exhale);
+    });
+});
+
+document.getElementById('stop-btn').addEventListener('click', stopBreathing);
+
+let timer = null;
+
+function startBreathing(inhale, hold, exhale) {
+    const modal   = document.getElementById('breathing-modal');
+    const circle  = document.getElementById('breathing-circle');
+    const label   = document.getElementById('breathing-label');
+    const counter = document.getElementById('breathing-counter');
+
+    modal.classList.remove('d-none');
+    modal.style.display = 'flex';
+
+    const phases = [];
+    phases.push({ label: 'Inspirez', seconds: inhale, size: '220px', color: '#00C853' });
+    if (hold > 0) phases.push({ label: 'Retenez', seconds: hold, size: '220px', color: '#FFD740' });
+    phases.push({ label: 'Expirez', seconds: exhale, size: '140px', color: '#1565C0' });
+
+    let phaseIndex = 0;
+    let secondLeft = 0;
+
+    function nextPhase() {
+        const phase = phases[phaseIndex % phases.length];
+        label.textContent = phase.label;
+        circle.style.width  = phase.size;
+        circle.style.height = phase.size;
+        circle.style.background = phase.color;
+        secondLeft = phase.seconds;
+        counter.textContent = secondLeft;
+    }
+
+    nextPhase();
+
+    timer = setInterval(() => {
+        secondLeft--;
+        counter.textContent = secondLeft;
+        if (secondLeft <= 0) {
+            phaseIndex++;
+            nextPhase();
+        }
+    }, 1000);
+}
+
+function stopBreathing() {
+    clearInterval(timer);
+    const modal = document.getElementById('breathing-modal');
+    modal.classList.add('d-none');
+    modal.style.display = 'none';
+    document.getElementById('breathing-circle').style.width  = '180px';
+    document.getElementById('breathing-circle').style.height = '180px';
+}
+</script>
+{% endblock %}

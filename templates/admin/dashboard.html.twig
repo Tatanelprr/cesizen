@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration{% endblock %}
+
+{% block body %}
+<h1 class="h3 fw-bold mb-4">Tableau de bord</h1>
+
+<div class="row g-3 mb-5">
+    <div class="col-6 col-md-4">
+        <div class="card p-3 text-center">
+            <div class="fs-1 fw-bold text-primary">{{ totalUsers }}</div>
+            <div class="text-muted small">Utilisateurs</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="card p-3 text-center">
+            <div class="fs-1 fw-bold text-primary">{{ totalArticles }}</div>
+            <div class="text-muted small">Articles</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="card p-3 text-center">
+            <div class="fs-1 fw-bold text-primary">{{ totalEmotions }}</div>
+            <div class="text-muted small">Émotions</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-md-4">
+        <a href="{{ path('app_admin_users') }}" class="card p-4 text-decoration-none d-block">
+            <i class="bi bi-people fs-2 text-primary"></i>
+            <div class="fw-bold mt-2">Gérer les utilisateurs</div>
+            <div class="text-muted small">Activer, désactiver, supprimer des comptes</div>
+        </a>
+    </div>
+    <div class="col-12 col-md-4">
+        <a href="{{ path('app_admin_articles') }}" class="card p-4 text-decoration-none d-block">
+            <i class="bi bi-journal-text fs-2 text-primary"></i>
+            <div class="fw-bold mt-2">Gérer les articles</div>
+            <div class="text-muted small">Créer et publier des contenus d'information</div>
+        </a>
+    </div>
+    <div class="col-12 col-md-4">
+        <a href="{{ path('app_admin_emotions') }}" class="card p-4 text-decoration-none d-block">
+            <i class="bi bi-emoji-smile fs-2 text-primary"></i>
+            <div class="fw-bold mt-2">Gérer les émotions</div>
+            <div class="text-muted small">Configurer le référentiel du tracker</div>
+        </a>
+    </div>
+</div>
+{% endblock %}

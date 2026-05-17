@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des émotions{% endblock %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <a href="{{ path('app_admin_dashboard') }}" class="btn btn-outline-primary btn-sm mb-2">
+            <i class="bi bi-arrow-left"></i> Dashboard
+        </a>
+        <h1 class="h3 fw-bold mb-0">Référentiel d'émotions</h1>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ path('app_admin_emotion_category_new') }}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-plus-lg"></i> Catégorie
+        </a>
+        <a href="{{ path('app_admin_emotion_new') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg"></i> Émotion
+        </a>
+    </div>
+</div>
+
+{% for category in categories %}
+<div class="card mb-3">
+    <div class="card-header d-flex align-items-center gap-2 py-2"
+         style="background: {{ category.codeColor }}22; border-left: 4px solid {{ category.codeColor }}">
+        <span class="fw-bold">{{ category.libelle }}</span>
+        <span class="badge" style="background:{{ category.codeColor }}">
+            {{ category.emotions|length }} émotion{{ category.emotions|length > 1 ? 's' : '' }}
+        </span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <tbody>
+                    {% for emotion in category.emotions %}
+                    <tr>
+                        <td>
+                            <span class="me-2">{{ emotion.icon ?? '●' }}</span>
+                            <span class="fw-semibold">{{ emotion.libelle }}</span>
+                        </td>
+                        <td>
+                            <span class="badge" style="background:{{ emotion.codeColor }}">
+                                {{ emotion.codeColor }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if emotion.isActive %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="post" action="{{ path('app_admin_emotion_toggle', {id: emotion.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('toggle-emotion-' ~ emotion.id) }}">
+                                <button type="submit" class="btn btn-sm {{ emotion.isActive ? 'btn-outline-warning' : 'btn-outline-success' }}">
+                                    {{ emotion.isActive ? 'Désactiver' : 'Activer' }}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+    <i class="bi bi-emoji-smile fs-1"></i>
+    <p class="mt-2">Aucune catégorie d'émotions configurée.</p>
+</div>
+{% endfor %}
+{% endblock %}

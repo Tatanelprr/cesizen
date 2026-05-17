@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une émotion{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-7 col-lg-6">
+        <a href="{{ path('app_tracker_index') }}" class="btn btn-outline-primary btn-sm mb-4">
+            <i class="bi bi-arrow-left"></i> Retour
+        </a>
+
+        <div class="card p-4">
+            <h1 class="h4 fw-bold mb-4">Comment vous sentez-vous ?</h1>
+
+            {{ form_start(form) }}
+                <div class="mb-4">
+                    {{ form_label(form.emotion, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.emotion, {'attr': {'class': 'form-select form-select-lg'}}) }}
+                    {{ form_errors(form.emotion) }}
+                </div>
+
+                <div class="mb-4">
+                    {{ form_label(form.intensite, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    <div class="d-flex align-items-center gap-3">
+                        {{ form_widget(form.intensite, {'attr': {'class': 'form-range flex-grow-1', 'min': 1, 'max': 10, 'id': 'intensite_range'}}) }}
+                        <span class="badge bg-primary fs-6" id="intensite_value">5</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small mt-1">
+                        <span>Faible</span><span>Fort</span>
+                    </div>
+                    {{ form_errors(form.intensite) }}
+                </div>
+
+                <div class="mb-4">
+                    {{ form_label(form.notePerso, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.notePerso, {'attr': {'class': 'form-control'}}) }}
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-100">Enregistrer</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    const range = document.getElementById('intensite_range');
+    const display = document.getElementById('intensite_value');
+    if (range) {
+        display.textContent = range.value;
+        range.addEventListener('input', () => display.textContent = range.value);
+    }
+</script>
+{% endblock %}

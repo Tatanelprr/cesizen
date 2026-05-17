@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon profil{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-7 col-lg-5">
+        <h1 class="h3 fw-bold mb-4">Mon profil</h1>
+
+        <div class="card p-4 mb-3">
+            <h6 class="fw-bold mb-3">Informations personnelles</h6>
+            {{ form_start(form) }}
+                <div class="mb-3">
+                    {{ form_label(form.pseudo, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.pseudo, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.pseudo) }}
+                </div>
+                <div class="mb-4">
+                    {{ form_label(form.email, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Enregistrer</button>
+            {{ form_end(form) }}
+        </div>
+
+        <div class="card p-4 mb-3">
+            <h6 class="fw-bold mb-1">Mot de passe</h6>
+            <p class="text-muted small mb-3">Modifiez votre mot de passe de connexion.</p>
+            <a href="{{ path('app_profil_password') }}" class="btn btn-outline-primary w-100">
+                Changer le mot de passe
+            </a>
+        </div>
+
+        <div class="card p-4 border-danger">
+            <h6 class="fw-bold text-danger mb-1">Zone de danger</h6>
+            <p class="text-muted small mb-3">Membre depuis le {{ app.user.createdAt|date('d/m/Y') }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
