@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ event.id ? 'Modifier' : 'Nouvel' }} événement{% endblock %}
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-6">
+        <a href="{{ path('app_admin_diagnostic_index') }}" class="btn btn-outline-primary btn-sm mb-4">
+            <i class="bi bi-arrow-left"></i> Retour
+        </a>
+        <div class="card p-4">
+            <h1 class="h4 fw-bold mb-4">{{ event.id ? 'Modifier l\'événement' : 'Nouvel événement' }}</h1>
+            {{ form_start(form) }}
+                <div class="mb-3">
+                    {{ form_label(form.libelle, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.libelle, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.points, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.points, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.position, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.position, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="mb-4 form-check">
+                    {{ form_widget(form.isActive, {'attr': {'class': 'form-check-input'}}) }}
+                    {{ form_label(form.isActive, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Enregistrer</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

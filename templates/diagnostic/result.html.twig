@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+{% block title %}Résultat du diagnostic{% endblock %}
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-7">
+        <div class="card p-4 text-center mb-4"
+             style="border-top: 5px solid {{ threshold ? threshold.codeColor : '#00C853' }}">
+            <p class="text-muted mb-1">Votre score de stress</p>
+            <div class="display-3 fw-bold" style="color: {{ threshold ? threshold.codeColor : '#00C853' }}">
+                {{ score }}
+            </div>
+            <div class="fs-5 fw-semibold mt-1">
+                {{ threshold ? threshold.niveau : 'Score calculé' }}
+            </div>
+        </div>
+
+        {% if threshold %}
+        <div class="card p-4 mb-4">
+            <h5 class="fw-bold">Analyse</h5>
+            <p>{{ threshold.description }}</p>
+            <h5 class="fw-bold mt-3">Recommandations</h5>
+            <p class="mb-0">{{ threshold.conseil }}</p>
+        </div>
+        {% endif %}
+
+        {% if selectedEvents|length > 0 %}
+        <div class="card p-4 mb-4">
+            <h6 class="fw-bold mb-3">Événements sélectionnés ({{ selectedEvents|length }})</h6>
+            <div class="d-flex flex-column gap-2">
+                {% for event in selectedEvents %}
+                <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light">
+                    <span class="small">{{ event.libelle }}</span>
+                    <span class="badge bg-primary">{{ event.points }} pts</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_diagnostic_index') }}" class="btn btn-outline-primary flex-grow-1">
+                Refaire le test
+            </a>
+            <a href="{{ path('app_breathing') }}" class="btn btn-primary flex-grow-1">
+                Exercice de respiration
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

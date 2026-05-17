@@ -21,14 +21,19 @@ class AppFixtures extends Fixture
     }
 
     private function loadAdmin(ObjectManager $manager): void
-    {
-        $admin = new User();
-        $admin->setEmail('admin@cesizen.fr');
-        $admin->setPseudo('Administrateur');
-        $admin->setRoles(['ROLE_ADMIN']);
-        $admin->setPassword($this->passwordHasher->hashPassword($admin, 'Admin@cesizen1'));
-        $manager->persist($admin);
-    }
+	{
+		$existing = $manager->getRepository(\App\Entity\User::class)->findOneBy(['email' => 'admin@cesizen.fr']);
+		if ($existing) {
+			return;
+		}
+
+		$admin = new User();
+		$admin->setEmail('admin@cesizen.fr');
+		$admin->setPseudo('Administrateur');
+		$admin->setRoles(['ROLE_ADMIN']);
+		$admin->setPassword($this->passwordHasher->hashPassword($admin, 'Admin@cesizen1'));
+		$manager->persist($admin);
+	}
 
     private function loadEmotions(ObjectManager $manager): void
     {
