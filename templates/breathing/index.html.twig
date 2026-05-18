@@ -1,42 +1,110 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Exercice de respiration{% endblock %}
-
+{% block title %}Exercices de respiration{% endblock %}
 {% block body %}
+
 <div class="text-center mb-4">
     <h1 class="h3 fw-bold">Cohérence cardiaque</h1>
     <p class="text-muted">Choisissez un rythme respiratoire et suivez le guide.</p>
 </div>
 
-<div class="row justify-content-center mb-4">
+<div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-6">
-        <div class="d-flex flex-column gap-3">
-            {% for key, ex in exercises %}
-            <div class="card p-3 exercise-card" data-inhale="{{ ex.inhale }}" data-hold="{{ ex.hold }}" data-exhale="{{ ex.exhale }}" style="cursor:pointer;">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="fw-bold">{{ ex.name }}</div>
-                        <small class="text-muted">{{ ex.description }}</small>
-                        <div class="small mt-1">
-                            <span class="badge bg-primary me-1">Inspiration {{ ex.inhale }}s</span>
-                            {% if ex.hold > 0 %}<span class="badge bg-warning text-dark me-1">Apnée {{ ex.hold }}s</span>{% endif %}
-                            <span class="badge bg-secondary">Expiration {{ ex.exhale }}s</span>
+
+        {% if exercises|length == 0 %}
+            <div class="text-center text-muted py-4">
+                <i class="bi bi-wind fs-1"></i>
+                <p class="mt-2">Aucun exercice disponible.</p>
+            </div>
+        {% else %}
+            <div class="d-flex flex-column gap-3 mb-4">
+                {% for ex in exercises %}
+                <div class="card p-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="fw-bold d-flex align-items-center gap-2">
+                                {{ ex.name }}
+                                {% if ex.isDefault %}
+                                    <span class="badge badge-zen small">Défaut</span>
+                                {% endif %}
+                            </div>
+                            {% if ex.description %}
+                                <small class="text-muted">{{ ex.description }}</small>
+                            {% endif %}
+                            <div class="small mt-1">
+                                <span class="badge bg-primary me-1">Inspiration {{ ex.inhale }}s</span>
+                                {% if ex.hold > 0 %}
+                                    <span class="badge bg-warning text-dark me-1">Apnée {{ ex.hold }}s</span>
+                                {% endif %}
+                                <span class="badge bg-secondary">Expiration {{ ex.exhale }}s</span>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 align-items-center">
+                            <button class="btn btn-primary btn-sm start-btn"
+                                    data-inhale="{{ ex.inhale }}"
+                                    data-hold="{{ ex.hold }}"
+                                    data-exhale="{{ ex.exhale }}">
+                                Démarrer
+                            </button>
+                            {% if ex.user is not null and ex.user == app.user %}
+                            <form method="post" action="{{ path('app_breathing_delete', {id: ex.id}) }}"
+                                  onsubmit="return confirm('Supprimer cet exercice ?')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-breathing-' ~ ex.id) }}">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
                         </div>
                     </div>
-                    <button class="btn btn-primary btn-sm start-btn">Démarrer</button>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+        {% endif %}
+
+        {% if is_granted('ROLE_USER') and form is not null %}
+        <div class="card p-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-plus-circle text-primary me-2"></i>Créer un exercice personnalisé</h6>
+            {{ form_start(form) }}
+                <div class="mb-3">
+                    {{ form_label(form.name, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Ma respiration du soir'}}) }}
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-4">
+                        {{ form_label(form.inhale, null, {'label_attr': {'class': 'form-label fw-semibold small'}}) }}
+                        {{ form_widget(form.inhale, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col-4">
+                        {{ form_label(form.hold, null, {'label_attr': {'class': 'form-label fw-semibold small'}}) }}
+                        {{ form_widget(form.hold, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col-4">
+                        {{ form_label(form.exhale, null, {'label_attr': {'class': 'form-label fw-semibold small'}}) }}
+                        {{ form_widget(form.exhale, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.description, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Idéal avant de dormir'}}) }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Créer l'exercice</button>
+            {{ form_end(form) }}
         </div>
+        {% elseif not is_granted('ROLE_USER') %}
+        <div class="card p-3 text-center text-muted">
+            <i class="bi bi-lock fs-2 mb-2"></i>
+            <p class="mb-1">Connectez-vous pour créer vos propres exercices.</p>
+            <a href="{{ path('app_login') }}" class="btn btn-outline-primary btn-sm">Se connecter</a>
+        </div>
+        {% endif %}
     </div>
 </div>
 
-<div id="breathing-modal" class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
-     style="background:rgba(0,0,0,0.85);z-index:2000;">
+<div id="breathing-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:2000;align-items:center;justify-content:center;">
     <div class="text-center text-white">
         <div id="breathing-circle" class="rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center"
-             style="width:180px;height:180px;background:var(--cz-green);transition:all 1s ease;opacity:0.9;">
-            <span id="breathing-icon" style="font-size:3rem">🌿</span>
+             style="width:180px;height:180px;background:var(--cz-green);transition:all 1s ease;">
+            <i class="bi bi-wind" style="font-size:3rem;"></i>
         </div>
         <div id="breathing-label" class="fs-3 fw-bold mb-2">Prêt</div>
         <div id="breathing-counter" class="fs-1 fw-bold mb-4" style="color:var(--cz-yellow)">-</div>
@@ -47,17 +115,13 @@
 
 {% block javascripts %}
 <script>
-document.querySelectorAll('.exercise-card').forEach(card => {
-    card.querySelector('.start-btn').addEventListener('click', () => {
-        const inhale = parseInt(card.dataset.inhale);
-        const hold   = parseInt(card.dataset.hold);
-        const exhale = parseInt(card.dataset.exhale);
-        startBreathing(inhale, hold, exhale);
+document.querySelectorAll('.start-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        startBreathing(parseInt(btn.dataset.inhale), parseInt(btn.dataset.hold), parseInt(btn.dataset.exhale));
     });
 });
 
 document.getElementById('stop-btn').addEventListener('click', stopBreathing);
-
 let timer = null;
 
 function startBreathing(inhale, hold, exhale) {
@@ -65,22 +129,20 @@ function startBreathing(inhale, hold, exhale) {
     const circle  = document.getElementById('breathing-circle');
     const label   = document.getElementById('breathing-label');
     const counter = document.getElementById('breathing-counter');
-
-    modal.classList.remove('d-none');
     modal.style.display = 'flex';
 
-    const phases = [];
-    phases.push({ label: 'Inspirez', seconds: inhale, size: '220px', color: '#00C853' });
-    if (hold > 0) phases.push({ label: 'Retenez', seconds: hold, size: '220px', color: '#FFD740' });
-    phases.push({ label: 'Expirez', seconds: exhale, size: '140px', color: '#1565C0' });
+    const phases = [
+        { label: 'Inspirez', seconds: inhale, size: '220px', color: '#00C853' },
+        ...(hold > 0 ? [{ label: 'Retenez', seconds: hold, size: '220px', color: '#FFD740' }] : []),
+        { label: 'Expirez', seconds: exhale, size: '140px', color: '#1565C0' },
+    ];
 
-    let phaseIndex = 0;
-    let secondLeft = 0;
+    let phaseIndex = 0, secondLeft = 0;
 
     function nextPhase() {
         const phase = phases[phaseIndex % phases.length];
         label.textContent = phase.label;
-        circle.style.width  = phase.size;
+        circle.style.width = phase.size;
         circle.style.height = phase.size;
         circle.style.background = phase.color;
         secondLeft = phase.seconds;
@@ -88,24 +150,17 @@ function startBreathing(inhale, hold, exhale) {
     }
 
     nextPhase();
-
     timer = setInterval(() => {
         secondLeft--;
         counter.textContent = secondLeft;
-        if (secondLeft <= 0) {
-            phaseIndex++;
-            nextPhase();
-        }
+        if (secondLeft <= 0) { phaseIndex++; nextPhase(); }
     }, 1000);
 }
 
 function stopBreathing() {
     clearInterval(timer);
-    const modal = document.getElementById('breathing-modal');
-    modal.classList.add('d-none');
-    modal.style.display = 'none';
-    document.getElementById('breathing-circle').style.width  = '180px';
-    document.getElementById('breathing-circle').style.height = '180px';
+    document.getElementById('breathing-modal').style.display = 'none';
+    document.getElementById('breathing-circle').style.cssText = 'width:180px;height:180px;background:var(--cz-green);transition:all 1s ease;';
 }
 </script>
 {% endblock %}
