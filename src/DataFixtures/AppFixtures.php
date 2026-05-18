@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\BreathingExercise;
 use App\Entity\DiagnosticEvent;
 use App\Entity\DiagnosticThreshold;
 use App\Entity\Emotion;
@@ -20,6 +21,7 @@ class AppFixtures extends Fixture
         $this->loadAdmin($manager);
         $this->loadEmotions($manager);
         $this->loadDiagnostic($manager);
+        $this->loadBreathingExercises($manager);
         $manager->flush();
     }
 
@@ -91,7 +93,7 @@ class AppFixtures extends Fixture
             $manager->persist($event);
         }
 
-        $thresholds = [
+        foreach ([
             [0, 149, 'Stress faible', '#00C853',
                 'Votre niveau de stress est bas. Vous gérez bien les changements de votre vie.',
                 'Continuez à prendre soin de vous avec des activités de détente et de respiration.'],
@@ -100,10 +102,8 @@ class AppFixtures extends Fixture
                 'Pratiquez régulièrement des exercices de respiration et identifiez vos émotions avec le tracker.'],
             [300, 9999, 'Stress élevé', '#E53935',
                 'Vous avez accumulé beaucoup de changements. Le risque de maladie liée au stress est important.',
-                'Il est fortement recommandé de consulter un professionnel de santé. En attendant, nos exercices de cohérence cardiaque peuvent vous aider.'],
-        ];
-
-        foreach ($thresholds as [$min, $max, $niveau, $color, $desc, $conseil]) {
+                'Il est fortement recommandé de consulter un professionnel de santé.'],
+        ] as [$min, $max, $niveau, $color, $desc, $conseil]) {
             $t = new DiagnosticThreshold();
             $t->setScoreMin($min)->setScoreMax($max)->setNiveau($niveau)
               ->setCodeColor($color)->setDescription($desc)->setConseil($conseil);
@@ -111,21 +111,19 @@ class AppFixtures extends Fixture
         }
     }
 
-	private function loadBreathingExercises(ObjectManager $manager): void
-	{
-		if ($manager->getRepository(\App\Entity\BreathingExercise::class)->count([]) > 0) return;
+    private function loadBreathingExercises(ObjectManager $manager): void
+    {
+        if ($manager->getRepository(BreathingExercise::class)->count([]) > 0) return;
 
-		$defaults = [
-			['7-4-8', 7, 4, 8, 'Relaxation profonde'],
-			['5-5',   5, 0, 5, 'Cohérence cardiaque'],
-			['4-6',   4, 0, 6, 'Anti-stress'],
-		];
-
-		foreach ($defaults as [$name, $inhale, $hold, $exhale, $desc]) {
-			$ex = new \App\Entity\BreathingExercise();
-			$ex->setName($name)->setInhale($inhale)->setHold($hold)
-			->setExhale($exhale)->setDescription($desc)->setIsDefault(true);
-			$manager->persist($ex);
-		}
-	}
+        foreach ([
+            ['7-4-8', 7, 4, 8, 'Relaxation profonde'],
+            ['5-5',   5, 0, 5, 'Cohérence cardiaque'],
+            ['4-6',   4, 0, 6, 'Anti-stress'],
+        ] as [$name, $inhale, $hold, $exhale, $desc]) {
+            $ex = new BreathingExercise();
+            $ex->setName($name)->setInhale($inhale)->setHold($hold)
+               ->setExhale($exhale)->setDescription($desc)->setIsDefault(true);
+            $manager->persist($ex);
+        }
+    }
 }
