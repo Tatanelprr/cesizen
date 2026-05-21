@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# CESIZen - Script de démarrage Linux/macOS
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
@@ -13,57 +11,50 @@ GRAY='\033[0;90m'
 NC='\033[0m'
 
 echo ""
-echo -e "  ${GREEN}CESI${NC}${YELLOW}Zen${NC} - Démarrage de l'application"
+echo -e "  ${GREEN}CESI${NC}${YELLOW}Zen${NC} - Demarrage de l'application"
 echo -e "  ${GRAY}----------------------------------------${NC}"
 echo ""
 
 # ── PHP ───────────────────────────────────────────────────────────────────────
-printf "${CYAN}[1/6] Vérification PHP...${NC}"
+printf "${CYAN}[1/6] Verification PHP...${NC}"
 if command -v php &> /dev/null; then
-    PHP_VERSION=$(php -r "echo PHP_VERSION;")
-    echo -e " ${GREEN}OK (PHP $PHP_VERSION)${NC}"
+    echo -e " ${GREEN}OK (PHP $(php -r 'echo PHP_VERSION;'))${NC}"
 else
-    echo -e " ${RED}ERREUR${NC}"
-    echo -e "      PHP n'est pas installé."
-    echo -e "      Linux : sudo apt install php8.2"
-    echo -e "      Mac   : brew install php"
+    echo -e " ${RED}ERREUR — Installez PHP : sudo apt install php8.2 (Linux) / brew install php (Mac)${NC}"
     exit 1
 fi
 
 # ── Composer ──────────────────────────────────────────────────────────────────
-printf "${CYAN}[2/6] Vérification Composer...${NC}"
+printf "${CYAN}[2/6] Verification Composer...${NC}"
 if command -v composer &> /dev/null; then
-    COMPOSER_VERSION=$(composer -V 2>/dev/null | awk '{print $3}')
-    echo -e " ${GREEN}OK (Composer $COMPOSER_VERSION)${NC}"
+    echo -e " ${GREEN}OK${NC}"
 else
-    echo -e " ${RED}ERREUR${NC}"
-    echo -e "      Composer n'est pas installé : https://getcomposer.org/"
+    echo -e " ${RED}ERREUR — https://getcomposer.org/${NC}"
     exit 1
 fi
 
 # ── Symfony CLI ───────────────────────────────────────────────────────────────
-printf "${CYAN}[3/6] Vérification Symfony CLI...${NC}"
+printf "${CYAN}[3/6] Verification Symfony CLI...${NC}"
 if command -v symfony &> /dev/null; then
     echo -e " ${GREEN}OK${NC}"
 else
-    echo -e " ${RED}ERREUR${NC}"
-    echo -e "      Symfony CLI n'est pas installé : https://symfony.com/download"
+    echo -e " ${RED}ERREUR — https://symfony.com/download${NC}"
     exit 1
 fi
 
-# ── Dépendances Composer ──────────────────────────────────────────────────────
-printf "${CYAN}[4/6] Vérification des dépendances...${NC}"
+# ── Dependances ───────────────────────────────────────────────────────────────
+printf "${CYAN}[4/6] Verification des dependances...${NC}"
 if [ ! -d "$SCRIPT_DIR/vendor" ]; then
     echo ""
-    echo -e "      ${YELLOW}Installation des dépendances (première fois)...${NC}"
+    echo -e "      ${YELLOW}Installation des dependances (premiere fois)...${NC}"
     composer install --no-interaction --quiet
-    echo -e "      ${GREEN}Dépendances installées.${NC}"
+    echo -e "      ${GREEN}Dependances installees.${NC}"
 else
-    echo -e " ${GREEN}OK (vendor/ présent)${NC}"
+    echo -e " ${GREEN}OK (vendor/ present)${NC}"
 fi
 
 # ── MySQL ─────────────────────────────────────────────────────────────────────
-printf "${CYAN}[5/6] Vérification MySQL...${NC}"
+printf "${CYAN}[5/6] Verification MySQL...${NC}"
 
 mysql_check() {
     (echo > /dev/tcp/127.0.0.1/3306) 2>/dev/null
@@ -73,67 +64,62 @@ mysql_check() {
 if mysql_check; then
     echo -e " ${GREEN}OK${NC}"
 else
-    echo -e " ${YELLOW}Arrêté, tentative de démarrage...${NC}"
-
+    echo -e " ${YELLOW}Arrete, tentative de demarrage...${NC}"
     STARTED=false
 
-    # macOS - Homebrew
     if command -v brew &> /dev/null && brew services list 2>/dev/null | grep -q mysql; then
-        brew services start mysql &>/dev/null
-        sleep 3
-        mysql_check && STARTED=true
+        brew services start mysql &>/dev/null && sleep 3 && mysql_check && STARTED=true
     fi
 
-    # Linux - systemd
     if [ "$STARTED" = false ] && command -v systemctl &> /dev/null; then
         for SVC in mysql mysql8 mariadb mysqld; do
-            sudo systemctl start $SVC &>/dev/null && sleep 3
-            mysql_check && STARTED=true && break
+            sudo systemctl start $SVC &>/dev/null && sleep 3 && mysql_check && STARTED=true && break
         done
     fi
 
-    # Linux - service
     if [ "$STARTED" = false ] && command -v service &> /dev/null; then
-        sudo service mysql start &>/dev/null
-        sleep 3
-        mysql_check && STARTED=true
+        sudo service mysql start &>/dev/null && sleep 3 && mysql_check && STARTED=true
     fi
 
     if [ "$STARTED" = true ]; then
-        echo -e "      ${GREEN}MySQL démarré.${NC}"
+        echo -e "      ${GREEN}MySQL demarre.${NC}"
     else
-        echo -e ""
-        echo -e "      ${RED}Impossible de démarrer MySQL automatiquement.${NC}"
-        echo -e "      ${YELLOW}Démarrez MySQL manuellement puis appuyez sur Entrée.${NC}"
+        echo -e "      ${RED}Impossible de demarrer MySQL automatiquement.${NC}"
+        echo -e "      ${YELLOW}Demarrez MySQL manuellement puis appuyez sur Entree.${NC}"
         read -r
     fi
 fi
 
-# ── Lancement du serveur ──────────────────────────────────────────────────────
-echo -e "${CYAN}[6/6] Démarrage du serveur Symfony...${NC}"
+# ── Lancement ─────────────────────────────────────────────────────────────────
+echo -e "${CYAN}[6/6] Demarrage du serveur Symfony...${NC}"
 echo ""
 
-# Lancer le serveur en arrière-plan
-symfony server:start --no-tls &>/dev/null &
-SERVER_PID=$!
-
-# Attendre que le serveur démarre
+symfony server:start --no-tls --listen-ip=0.0.0.0 &>/dev/null &
 sleep 3
 
 # Détecter le port réel
 SERVER_URL="http://127.0.0.1:8000"
 STATUS_OUTPUT=$(symfony server:status --no-ansi 2>/dev/null)
+PORT="8000"
 
 if echo "$STATUS_OUTPUT" | grep -oE "http://127\.0\.0\.1:[0-9]+" &>/dev/null; then
     SERVER_URL=$(echo "$STATUS_OUTPUT" | grep -oE "http://127\.0\.0\.1:[0-9]+" | head -1)
+    PORT=$(echo "$SERVER_URL" | grep -oE "[0-9]+$")
 fi
 
-echo -e "  ${GREEN}Application disponible sur : $SERVER_URL${NC}"
-echo -e "  ${GRAY}Appuyez sur Ctrl+C pour arrêter le serveur.${NC}"
+# Détecter l'IP locale
+LOCAL_IP=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+' || \
+           ipconfig getifaddr en0 2>/dev/null || \
+           hostname -I 2>/dev/null | awk '{print $1}')
+NETWORK_URL="http://${LOCAL_IP}:${PORT}"
+
+echo -e "  ${GREEN}Acces local   : $SERVER_URL${NC}"
+echo -e "  ${YELLOW}Acces reseau  : $NETWORK_URL${NC}"
+echo -e "  ${GRAY}(entrez l'adresse reseau sur votre telephone)${NC}"
+echo ""
+echo -e "  ${GRAY}Appuyez sur Ctrl+C pour arreter le serveur.${NC}"
 echo ""
 
-# Ouvrir le navigateur sur le bon port
 (sleep 1 && (xdg-open "$SERVER_URL" 2>/dev/null || open "$SERVER_URL" 2>/dev/null)) &
 
-# Attacher au processus serveur pour voir les logs
-wait $SERVER_PID
+symfony server:log

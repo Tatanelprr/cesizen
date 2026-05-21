@@ -118,31 +118,37 @@ if (-not $mysqlRunning) {
 Write-Host "[6/6] Demarrage du serveur Symfony..." -ForegroundColor Cyan
 Write-Host ""
 
-# Lancer le serveur en arrière-plan pour capturer le port
+# Récupérer l'IP locale du PC sur le réseau WiFi
+$localIP = (Get-NetIPAddress -AddressFamily IPv4 |
+    Where-Object { $_.InterfaceAlias -match "Wi-Fi|WiFi|Ethernet" -and $_.IPAddress -notmatch "^169" } |
+    Select-Object -First 1).IPAddress
+
+# Lancer le serveur accessible sur tout le réseau
 $serverJob = Start-Job -ScriptBlock {
     Set-Location $using:projectPath
-    symfony server:start --no-tls 2>&1
+    symfony server:start --no-tls --listen-ip=0.0.0.0 2>&1
 }
 
-# Attendre que le serveur démarre et détecter le port
 Write-Host "  Attente du demarrage..." -ForegroundColor DarkGray
 Start-Sleep -Seconds 3
 
-# Récupérer l'URL réelle depuis symfony server:status
+# Détecter le port réel
 $statusOutput = symfony server:status --no-ansi 2>$null
-$serverUrl = "http://127.0.0.1:8000"
-
+$port = "8000"
 if ($statusOutput -and ($statusOutput | Select-String -Pattern "http://127\.0\.0\.1:(\d+)")) {
-    $match = ($statusOutput | Select-String -Pattern "http://127\.0\.0\.1:(\d+)").Matches[0]
-    $serverUrl = $match.Value
+    $port = ($statusOutput | Select-String -Pattern "http://127\.0\.0\.1:(\d+)").Matches[0].Groups[1].Value
 }
 
-Write-Host "  Application disponible sur : $serverUrl" -ForegroundColor Green
-Write-Host "  Appuyez sur Ctrl+C pour arreter le serveur." -ForegroundColor DarkGray
+$localUrl   = "http://127.0.0.1:$port"
+$networkUrl = if ($localIP) { "http://${localIP}:$port" } else { "Non detectee" }
+
+Write-Host "  Acces local   : $localUrl" -ForegroundColor Green
+Write-Host "  Acces reseau  : $networkUrl" -ForegroundColor Yellow
+Write-Host "  (entrez l'adresse reseau sur votre telephone)" -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "  Appuyez sur Ctrl+C pour arreter." -ForegroundColor DarkGray
 Write-Host ""
 
-# Ouvrir le navigateur sur le bon port
-Start-Process $serverUrl
+Start-Process $localUrl
 
-# Afficher les logs du serveur en temps réel
 Receive-Job -Job $serverJob -Wait -AutoRemoveJob
