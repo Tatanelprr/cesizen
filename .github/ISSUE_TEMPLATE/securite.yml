@@ -1,0 +1,55 @@
+name: "Incident de securite"
+description: "Signaler une vulnerabilite ou un incident de securite"
+title: "[SECURITE] "
+labels: ["securite", "critique", "a-trier"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Attention** : Pour les vulnerabilites critiques, contactez directement l'equipe de developpement.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: "Type d'incident"
+      options:
+        - "Vulnerabilite applicative (XSS, injection...)"
+        - "Fuite de donnees personnelles"
+        - "Acces non autorise"
+        - "Tentative d'intrusion"
+        - "Autre"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: criticite
+    attributes:
+      label: "Criticite"
+      options:
+        - "Critique — donnees exposees ou service compromis"
+        - "Elevee — risque important identifie"
+        - "Moderee — vulnerabilite sans exploitation confirmee"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description de l'incident"
+      placeholder: "Decrivez la vulnerabilite ou l'incident..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: "Impact potentiel"
+      placeholder: "Donnees affectees, utilisateurs concernes..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actions
+    attributes:
+      label: "Actions immediates prises"
+      placeholder: "Ce qui a deja ete fait pour limiter l'impact..."

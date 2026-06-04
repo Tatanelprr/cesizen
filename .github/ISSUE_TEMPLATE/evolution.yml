@@ -1,0 +1,53 @@
+name: "Demande d'evolution"
+description: "Proposer une nouvelle fonctionnalite ou une amelioration"
+title: "[EVOLUTION] "
+labels: ["evolution", "a-trier"]
+body:
+  - type: dropdown
+    id: priorite
+    attributes:
+      label: "Priorite estimee"
+      options:
+        - "Haute — impact fort sur les utilisateurs"
+        - "Moyenne — amelioration notable"
+        - "Basse — nice to have"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: "Module concerne"
+      options:
+        - Comptes utilisateurs
+        - Informations
+        - Diagnostic
+        - Respiration
+        - Activites de detente
+        - Tracker d'emotions
+        - Administration
+        - Nouveau module
+    validations:
+      required: true
+
+  - type: textarea
+    id: besoin
+    attributes:
+      label: "Besoin exprime"
+      placeholder: "En tant qu'utilisateur, je souhaite..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Solution proposee"
+      placeholder: "Decrivez la fonctionnalite souhaitee..."
+
+  - type: textarea
+    id: valeur
+    attributes:
+      label: "Valeur ajoutee"
+      placeholder: "Pourquoi cette evolution est-elle importante ?"
+    validations:
+      required: true
