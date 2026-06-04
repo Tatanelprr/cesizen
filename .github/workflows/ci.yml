@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   tests:
     name: Tests PHPUnit
@@ -48,9 +51,12 @@ jobs:
 
       - name: Configuration de l'environnement de test
         run: |
-          cp .env .env.test.local
-          echo "DATABASE_URL=mysql://root:root@127.0.0.1:3306/cesizen_test?serverVersion=8.0&charset=utf8mb4" >> .env.test.local
-          echo "APP_ENV=test" >> .env.test.local
+          cat > .env.test.local << 'ENVEOF'
+          APP_ENV=test
+          APP_SECRET=cesizen_test_secret_key_for_ci_only
+          DATABASE_URL=mysql://root:root@127.0.0.1:3306/cesizen?serverVersion=8.0&charset=utf8mb4
+          MAILER_DSN=null://null
+          ENVEOF
 
       - name: Creation du schema de base de donnees de test
         run: |
