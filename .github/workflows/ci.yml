@@ -1,0 +1,64 @@
+name: CESIZen CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  tests:
+    name: Tests PHPUnit
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: cesizen_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Recuperation du code
+        uses: actions/checkout@v4
+
+      - name: Installation de PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo, pdo_mysql, intl, mbstring, xml, zip
+          coverage: none
+
+      - name: Cache des dependances Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Installation des dependances
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Configuration de l'environnement de test
+        run: |
+          cp .env .env.test.local
+          echo "DATABASE_URL=mysql://root:root@127.0.0.1:3306/cesizen_test?serverVersion=8.0&charset=utf8mb4" >> .env.test.local
+          echo "APP_ENV=test" >> .env.test.local
+
+      - name: Creation du schema de base de donnees de test
+        run: |
+          php bin/console doctrine:database:create --env=test --if-not-exists
+          php bin/console doctrine:schema:create --env=test
+
+      - name: Execution des tests PHPUnit
+        run: php bin/phpunit --testdox
+
+      - name: Verification du cache Symfony
+        run: php bin/console cache:warmup --env=test
