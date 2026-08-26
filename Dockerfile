@@ -61,6 +61,12 @@ COPY . .
 RUN php bin/console importmap:install --no-interaction
 RUN php bin/console assets:install --env=prod --no-debug
 
+# Cache warmup au build-time avec une URL factice mais valide
+# (Doctrine compile les références env comme pointeurs — pas de connexion réelle)
+RUN DATABASE_URL="mysql://app:app@localhost:3306/app?serverVersion=8.0&charset=utf8mb4" \
+    APP_SECRET="buildsecretplaceholder32charslong" \
+    php bin/console cache:warmup --env=prod --no-debug
+
 # Config nginx (template — PORT substitué au démarrage)
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY docker/nginx/conf.d/app.conf /etc/nginx/conf.d/app.conf.template
