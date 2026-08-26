@@ -17,9 +17,30 @@ final class Version20260826121116 extends AbstractMigration
         return '';
     }
 
+    public function isTransactional(): bool
+    {
+        return false;
+    }
+
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
+        // Drop stale tables from previous deployments (safe — no real data yet)
+        $this->addSql('SET FOREIGN_KEY_CHECKS=0');
+        $this->addSql('DROP TABLE IF EXISTS activity_favorite');
+        $this->addSql('DROP TABLE IF EXISTS journal_entry');
+        $this->addSql('DROP TABLE IF EXISTS breathing_exercise');
+        $this->addSql('DROP TABLE IF EXISTS reset_password_request');
+        $this->addSql('DROP TABLE IF EXISTS article');
+        $this->addSql('DROP TABLE IF EXISTS emotion');
+        $this->addSql('DROP TABLE IF EXISTS activity');
+        $this->addSql('DROP TABLE IF EXISTS app_user');
+        $this->addSql('DROP TABLE IF EXISTS article_category');
+        $this->addSql('DROP TABLE IF EXISTS emotion_category');
+        $this->addSql('DROP TABLE IF EXISTS diagnostic_event');
+        $this->addSql('DROP TABLE IF EXISTS diagnostic_threshold');
+        $this->addSql('DROP TABLE IF EXISTS messenger_messages');
+        $this->addSql('SET FOREIGN_KEY_CHECKS=1');
+
         $this->addSql('CREATE TABLE activity (id INT AUTO_INCREMENT NOT NULL, titre VARCHAR(255) NOT NULL, description LONGTEXT NOT NULL, url_media VARCHAR(255) DEFAULT NULL, type VARCHAR(50) NOT NULL, is_active TINYINT NOT NULL, created_at DATETIME NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE activity_favorite (id INT AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, user_id INT NOT NULL, activity_id INT NOT NULL, INDEX IDX_C8CF3ED7A76ED395 (user_id), INDEX IDX_C8CF3ED781C06096 (activity_id), UNIQUE INDEX UNIQ_C8CF3ED7A76ED39581C06096 (user_id, activity_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE app_user (id INT AUTO_INCREMENT NOT NULL, email VARCHAR(180) NOT NULL, roles JSON NOT NULL, password VARCHAR(255) NOT NULL, pseudo VARCHAR(50) NOT NULL, is_active TINYINT NOT NULL, created_at DATETIME NOT NULL, UNIQUE INDEX UNIQ_88BDF3E9E7927C74 (email), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
