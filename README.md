@@ -24,42 +24,48 @@ CESIZen est une plateforme web de santé mentale commanditée par le Ministère 
 
 ## Prérequis
 
-- **PHP** 8.2+
-- **Composer** 2.x
-- **Symfony CLI** 5.x
-- **MySQL** 8.0 ou **MariaDB** 10.6+
+| Outil | Version | Lien |
+|---|---|---|
+| PHP | 8.4+ | https://windows.php.net/download/ |
+| Composer | 2.x | https://getcomposer.org/ |
+| Symfony CLI | dernière | https://symfony.com/download |
+| Docker Desktop | dernière | https://www.docker.com/products/docker-desktop/ |
+| Git | 2.x | https://git-scm.com/ |
+
+> **Docker Desktop** est la méthode recommandée pour la base de données MySQL (évite les conflits de ports et de permissions).
 
 ---
 
-## Démarrage rapide
-
-### Windows
+## Démarrage rapide (sessions suivantes)
 
 ```powershell
+# 1. Démarrer MySQL si le conteneur est arrêté (après redémarrage PC)
+docker start cesizen-mysql
+
+# 2. Lancer le serveur Symfony (Windows)
 .\start.ps1
 ```
 
-### Linux / macOS
-
 ```bash
-chmod +x start.sh
-./start.sh
+# Linux / macOS
+docker start cesizen-mysql
+symfony server:start
 ```
 
-Les scripts vérifient automatiquement les dépendances, tentent de démarrer MySQL si nécessaire, lancent le serveur Symfony et ouvrent l'application dans le navigateur.
+`start.ps1` vérifie automatiquement PHP, Composer, Symfony CLI et MySQL, puis ouvre le navigateur sur `http://127.0.0.1:8000`.
 
 ---
 
-## Installation manuelle
+## Installation sur un nouveau PC
 
 ### 1. Cloner le dépôt
 
 ```bash
-git clone https://github.com/votre-compte/cesizen.git
+git clone https://github.com/Tatanelprr/cesizen.git
 cd cesizen
 ```
 
-### 2. Installer les dépendances
+### 2. Installer les dépendances PHP
 
 ```bash
 composer install
@@ -71,33 +77,53 @@ composer install
 cp .env .env.local
 ```
 
-Modifier `.env.local` :
+Éditer `.env.local` (remplacer `MON_MOT_DE_PASSE` par le mot de passe choisi) :
 
 ```env
-DATABASE_URL="mysql://root:MOT_DE_PASSE@127.0.0.1:3306/cesizen?serverVersion=8.0&charset=utf8mb4"
+DATABASE_URL="mysql://root:MON_MOT_DE_PASSE@127.0.0.1:3306/cesizen?serverVersion=8.0&charset=utf8mb4"
 APP_SECRET=une_chaine_aleatoire_32_caracteres
 MAILER_DSN=null://null
+GITHUB_TOKEN=           # optionnel — formulaire de feedback
+GITHUB_REPO=Tatanelprr/cesizen
 ```
 
-### 4. Créer la base de données
+> Génère un APP_SECRET : `php -r "echo bin2hex(random_bytes(16));"`
+
+### 4. Démarrer MySQL avec Docker
 
 ```bash
-php bin/console doctrine:database:create
-php bin/console doctrine:schema:create
+docker run -d \
+  --name cesizen-mysql \
+  -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=MON_MOT_DE_PASSE \
+  -e MYSQL_DATABASE=cesizen \
+  mysql:8.0
 ```
 
-### 5. Charger les données
+Attendre ~15 secondes puis vérifier :
 
 ```bash
-php bin/console doctrine:fixtures:load
+docker exec cesizen-mysql mysqladmin ping -u root -pMON_MOT_DE_PASSE --silent
+# Résultat attendu : mysqld is alive
 ```
 
-> Réponds `yes` à la confirmation.
+### 5. Initialiser la base de données
+
+```bash
+php bin/console doctrine:migrations:migrate --no-interaction
+php bin/console doctrine:fixtures:load --no-interaction
+```
 
 ### 6. Lancer le serveur
 
+```powershell
+# Windows
+.\start.ps1
+```
+
 ```bash
-symfony server:start --no-tls
+# Linux / macOS
+symfony server:start
 ```
 
 L'application est accessible sur `http://127.0.0.1:8000`
