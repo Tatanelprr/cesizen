@@ -193,6 +193,43 @@ cesizen/
 
 ---
 
+## Règle de déploiement — Staging avant Production
+
+> **Tout ce qui va en production doit d'abord passer par `develop` et l'environnement staging.**
+
+### Flux obligatoire
+
+```
+feature/* ──► develop (staging Railway) ──► main (production Railway)
+```
+
+Les sauts sont interdits : on ne peut jamais déployer en production un code qui n'a pas été validé en staging.
+
+### Protections en place
+
+**1. Vérification CI automatique**
+À chaque push sur `main`, le job `Verify staging synced with production` vérifie que `develop` est bien un ancêtre du commit déployé. Si ce n'est pas le cas, le déploiement prod est bloqué automatiquement.
+
+**2. Protection de branche GitHub**
+La branche `main` exige :
+- Une Pull Request (pas de push direct)
+- Les status checks `Tests PHPUnit` et `Verify staging synced with production` doivent être verts
+
+### Procédure standard
+
+```bash
+# 1. Développer sur une feature branch
+git checkout -b feature/ma-fonctionnalite develop
+
+# 2. PR feature → develop  →  deploy staging automatique
+# 3. Valider sur https://cesizen-staging.up.railway.app
+# 4. PR develop → main  →  deploy production automatique
+```
+
+Ne jamais merger directement dans `main` sans passer par `develop`.
+
+---
+
 ## Accès rapides
 
 | URL | Description |

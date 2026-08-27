@@ -87,9 +87,34 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_PREPROD }}
 
+  check-preprod-sync:
+    name: Verify staging synced with production
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Recuperation du code avec historique complet
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verifier que develop est fusionne dans main
+        run: |
+          git fetch origin develop
+          DEVELOP_TIP=$(git rev-parse origin/develop)
+          MERGE_BASE=$(git merge-base HEAD origin/develop)
+          echo "Tip develop  : $DEVELOP_TIP"
+          echo "Merge base   : $MERGE_BASE"
+          if [ "$MERGE_BASE" != "$DEVELOP_TIP" ]; then
+            echo "::error::DEPLOIEMENT PROD BLOQUE — develop/staging doit etre merge dans main avant la prod."
+            echo "::error::Creez une PR develop → main et mergez-la d'abord."
+            exit 1
+          fi
+          echo "✅ develop est bien un ancetre de main — deploiement prod autorise"
+
   deploy-prod:
     name: Deploy to Railway production
-    needs: tests
+    needs: [tests, check-preprod-sync]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
 
