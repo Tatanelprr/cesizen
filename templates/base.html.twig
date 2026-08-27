@@ -83,6 +83,9 @@
             body { padding-bottom: 0; }
             .bottom-nav { display: none; }
         }
+
+        .feedback-fab { bottom: 75px; }
+        @media (min-width: 768px) { .feedback-fab { bottom: 1rem; } }
     </style>
     {% block stylesheets %}{% endblock %}
 </head>
@@ -193,6 +196,13 @@
     </a>
     {% endif %}
 </nav>
+
+<a href="{{ path('app_feedback') }}"
+   class="btn btn-outline-secondary position-fixed end-0 rounded-pill shadow-sm feedback-fab"
+   style="right: 1rem;"
+   title="Signaler un problème / Suggérer une idée">
+    <i class="bi bi-flag"></i>
+</a>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 {% block javascripts %}{% endblock %}
