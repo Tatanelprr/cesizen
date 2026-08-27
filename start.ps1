@@ -76,36 +76,30 @@ Write-Host "[5/6] Verification MySQL..." -ForegroundColor Cyan -NoNewline
 
 $mysqlRunning = $false
 
-# Tester la connexion MySQL
-try {
-    $testConn = New-Object System.Net.Sockets.TcpClient
-    $testConn.Connect("127.0.0.1", 3306)
-    $testConn.Close()
-    $mysqlRunning = $true
-    Write-Host " OK" -ForegroundColor Green
-} catch {
-    Write-Host " Arrete, tentative de demarrage..." -ForegroundColor Yellow
-}
+# 1. Vérifier via Get-Service (plus fiable que TCP — fonctionne même si MySQL écoute sur IPv6)
+$mysqlService = Get-Service -Name "MySQL*" -ErrorAction SilentlyContinue |
+    Where-Object { $_.Status -eq "Running" } |
+    Select-Object -First 1
 
-if (-not $mysqlRunning) {
-    # Essayer de démarrer via XAMPP
-    $xamppMysql = "C:\xampp\mysql\bin\mysqld.exe"
-    $services = @("mysql", "mysql80", "MySQL80", "MySQL", "xampp_mysql")
-    
+if ($mysqlService) {
+    $mysqlRunning = $true
+    Write-Host " OK ($($mysqlService.Name))" -ForegroundColor Green
+} else {
+    Write-Host " Arrete, tentative de demarrage..." -ForegroundColor Yellow
+
+    $services = @("MySQL80", "MySQL", "mysql80", "mysql", "xampp_mysql")
     $started = $false
+
     foreach ($svc in $services) {
         try {
-            Start-Service -Name $svc -ErrorAction SilentlyContinue
+            Start-Service -Name $svc -ErrorAction Stop
             Start-Sleep -Seconds 3
-            $testConn = New-Object System.Net.Sockets.TcpClient
-            $testConn.Connect("127.0.0.1", 3306)
-            $testConn.Close()
             $started = $true
-            Write-Host "  MySQL demarre." -ForegroundColor Green
+            Write-Host "  MySQL demarre ($svc)." -ForegroundColor Green
             break
         } catch {}
     }
-    
+
     if (-not $started) {
         Write-Host ""
         Write-Host "  ERREUR : Impossible de demarrer MySQL automatiquement." -ForegroundColor Red
