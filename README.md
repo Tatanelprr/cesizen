@@ -22,6 +22,17 @@ CESIZen est une plateforme web de santé mentale commanditée par le Ministère 
 
 ---
 
+## Déploiement
+
+| Environnement | URL | Branche |
+|---|---|---|
+| **Production** | https://cesizen-prod.up.railway.app | `main` |
+| **Staging / Preprod** | https://cesizen-preprod.up.railway.app | `develop` |
+
+Les déploiements sont automatiques via GitHub Actions après validation des tests PHPUnit. Tout ce qui va en production passe d'abord par le staging.
+
+---
+
 ## Prérequis
 
 | Outil | Version | Lien |
@@ -56,7 +67,16 @@ symfony server:start
 
 ---
 
-## Installation sur un nouveau PC
+## Utiliser l'application en ligne
+
+L'application est déployée et accessible sans installation :
+
+- **Production** → https://cesizen-prod.up.railway.app
+- **Staging** → https://cesizen-preprod.up.railway.app
+
+---
+
+## Installation locale (développement)
 
 ### 1. Cloner le dépôt
 
@@ -77,13 +97,13 @@ composer install
 cp .env .env.local
 ```
 
-Éditer `.env.local` (remplacer `MON_MOT_DE_PASSE` par le mot de passe choisi) :
+Éditer `.env.local` :
 
 ```env
 DATABASE_URL="mysql://root:MON_MOT_DE_PASSE@127.0.0.1:3306/cesizen?serverVersion=8.0&charset=utf8mb4"
 APP_SECRET=une_chaine_aleatoire_32_caracteres
 MAILER_DSN=null://null
-GITHUB_TOKEN=           # optionnel — formulaire de feedback
+GITHUB_TOKEN=           # token GitHub avec scope repo — pour le formulaire de feedback
 GITHUB_REPO=Tatanelprr/cesizen
 ```
 
@@ -100,13 +120,6 @@ docker run -d \
   mysql:8.0
 ```
 
-Attendre ~15 secondes puis vérifier :
-
-```bash
-docker exec cesizen-mysql mysqladmin ping -u root -pMON_MOT_DE_PASSE --silent
-# Résultat attendu : mysqld is alive
-```
-
 ### 5. Initialiser la base de données
 
 ```bash
@@ -117,12 +130,13 @@ php bin/console doctrine:fixtures:load --no-interaction
 ### 6. Lancer le serveur
 
 ```powershell
-# Windows
+# Windows — démarre MySQL Docker automatiquement
 .\start.ps1
 ```
 
 ```bash
 # Linux / macOS
+docker start cesizen-mysql
 symfony server:start
 ```
 
@@ -190,6 +204,43 @@ cesizen/
 ├── start.sh            # Script démarrage Linux/Mac
 └── .env                # Configuration
 ```
+
+---
+
+## Règle de déploiement — Staging avant Production
+
+> **Tout ce qui va en production doit d'abord passer par `develop` et l'environnement staging.**
+
+### Flux obligatoire
+
+```
+feature/* ──► develop (staging Railway) ──► main (production Railway)
+```
+
+Les sauts sont interdits : on ne peut jamais déployer en production un code qui n'a pas été validé en staging.
+
+### Protections en place
+
+**1. Vérification CI automatique**
+À chaque push sur `main`, le job `Verify staging synced with production` vérifie que `develop` est bien un ancêtre du commit déployé. Si ce n'est pas le cas, le déploiement prod est bloqué automatiquement.
+
+**2. Protection de branche GitHub**
+La branche `main` exige :
+- Une Pull Request (pas de push direct)
+- Les status checks `Tests PHPUnit` et `Verify staging synced with production` doivent être verts
+
+### Procédure standard
+
+```bash
+# 1. Développer sur une feature branch
+git checkout -b feature/ma-fonctionnalite develop
+
+# 2. PR feature → develop  →  deploy staging automatique
+# 3. Valider sur https://cesizen-staging.up.railway.app
+# 4. PR develop → main  →  deploy production automatique
+```
+
+Ne jamais merger directement dans `main` sans passer par `develop`.
 
 ---
 
