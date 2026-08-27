@@ -76,36 +76,51 @@ Write-Host "[5/6] Verification MySQL..." -ForegroundColor Cyan -NoNewline
 
 $mysqlRunning = $false
 
-# 1. Vérifier via Get-Service (plus fiable que TCP — fonctionne même si MySQL écoute sur IPv6)
-$mysqlService = Get-Service -Name "MySQL*" -ErrorAction SilentlyContinue |
-    Where-Object { $_.Status -eq "Running" } |
-    Select-Object -First 1
-
-if ($mysqlService) {
-    $mysqlRunning = $true
-    Write-Host " OK ($($mysqlService.Name))" -ForegroundColor Green
-} else {
-    Write-Host " Arrete, tentative de demarrage..." -ForegroundColor Yellow
-
-    $services = @("MySQL80", "MySQL", "mysql80", "mysql", "xampp_mysql")
-    $started = $false
-
-    foreach ($svc in $services) {
-        try {
-            Start-Service -Name $svc -ErrorAction Stop
-            Start-Sleep -Seconds 3
-            $started = $true
-            Write-Host "  MySQL demarre ($svc)." -ForegroundColor Green
-            break
-        } catch {}
+# 1. Conteneur Docker cesizen-mysql (méthode recommandée)
+$dockerAvailable = Get-Command docker -ErrorAction SilentlyContinue
+if ($dockerAvailable) {
+    $containerState = docker inspect -f '{{.State.Status}}' cesizen-mysql 2>$null
+    if ($containerState -eq "running") {
+        $mysqlRunning = $true
+        Write-Host " OK (Docker cesizen-mysql)" -ForegroundColor Green
+    } elseif ($containerState -eq "exited" -or $containerState -eq "created") {
+        Write-Host " Arrete, demarrage du conteneur Docker..." -ForegroundColor Yellow
+        docker start cesizen-mysql | Out-Null
+        Start-Sleep -Seconds 3
+        $mysqlRunning = $true
+        Write-Host "  MySQL demarre (Docker cesizen-mysql)." -ForegroundColor Green
     }
+}
 
-    if (-not $started) {
-        Write-Host ""
-        Write-Host "  ERREUR : Impossible de demarrer MySQL automatiquement." -ForegroundColor Red
-        Write-Host "  Ouvrez le panneau XAMPP et demarrez MySQL manuellement." -ForegroundColor Yellow
-        Read-Host "  Appuyez sur Entree une fois MySQL demarre"
+# 2. Fallback : service Windows MySQL
+if (-not $mysqlRunning) {
+    $mysqlService = Get-Service -Name "MySQL*" -ErrorAction SilentlyContinue |
+        Where-Object { $_.Status -eq "Running" } |
+        Select-Object -First 1
+
+    if ($mysqlService) {
+        $mysqlRunning = $true
+        Write-Host " OK ($($mysqlService.Name))" -ForegroundColor Green
+    } else {
+        Write-Host " Arrete, tentative de demarrage..." -ForegroundColor Yellow
+
+        foreach ($svc in @("MySQL80", "MySQL", "mysql80", "mysql", "xampp_mysql")) {
+            try {
+                Start-Service -Name $svc -ErrorAction Stop
+                Start-Sleep -Seconds 3
+                $mysqlRunning = $true
+                Write-Host "  MySQL demarre ($svc)." -ForegroundColor Green
+                break
+            } catch {}
+        }
     }
+}
+
+if (-not $mysqlRunning) {
+    Write-Host ""
+    Write-Host "  ERREUR : Impossible de demarrer MySQL." -ForegroundColor Red
+    Write-Host "  Lancez : docker start cesizen-mysql" -ForegroundColor Yellow
+    Read-Host "  Appuyez sur Entree une fois MySQL demarre"
 }
 
 # ── Lancement du serveur ─────────────────────────────────────────────────────
