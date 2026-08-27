@@ -22,6 +22,17 @@ CESIZen est une plateforme web de santé mentale commanditée par le Ministère 
 
 ---
 
+## Déploiement
+
+| Environnement | URL | Branche |
+|---|---|---|
+| **Production** | https://cesizen-prod.up.railway.app | `main` |
+| **Staging / Preprod** | https://cesizen-preprod.up.railway.app | `develop` |
+
+Les déploiements sont automatiques via GitHub Actions après validation des tests PHPUnit. Tout ce qui va en production passe d'abord par le staging.
+
+---
+
 ## Prérequis
 
 | Outil | Version | Lien |
@@ -56,7 +67,16 @@ symfony server:start
 
 ---
 
-## Installation sur un nouveau PC
+## Utiliser l'application en ligne
+
+L'application est déployée et accessible sans installation :
+
+- **Production** → https://cesizen-prod.up.railway.app
+- **Staging** → https://cesizen-preprod.up.railway.app
+
+---
+
+## Installation locale (développement)
 
 ### 1. Cloner le dépôt
 
@@ -77,13 +97,13 @@ composer install
 cp .env .env.local
 ```
 
-Éditer `.env.local` (remplacer `MON_MOT_DE_PASSE` par le mot de passe choisi) :
+Éditer `.env.local` :
 
 ```env
 DATABASE_URL="mysql://root:MON_MOT_DE_PASSE@127.0.0.1:3306/cesizen?serverVersion=8.0&charset=utf8mb4"
 APP_SECRET=une_chaine_aleatoire_32_caracteres
 MAILER_DSN=null://null
-GITHUB_TOKEN=           # optionnel — formulaire de feedback
+GITHUB_TOKEN=           # token GitHub avec scope repo — pour le formulaire de feedback
 GITHUB_REPO=Tatanelprr/cesizen
 ```
 
@@ -100,13 +120,6 @@ docker run -d \
   mysql:8.0
 ```
 
-Attendre ~15 secondes puis vérifier :
-
-```bash
-docker exec cesizen-mysql mysqladmin ping -u root -pMON_MOT_DE_PASSE --silent
-# Résultat attendu : mysqld is alive
-```
-
 ### 5. Initialiser la base de données
 
 ```bash
@@ -117,12 +130,13 @@ php bin/console doctrine:fixtures:load --no-interaction
 ### 6. Lancer le serveur
 
 ```powershell
-# Windows
+# Windows — démarre MySQL Docker automatiquement
 .\start.ps1
 ```
 
 ```bash
 # Linux / macOS
+docker start cesizen-mysql
 symfony server:start
 ```
 
