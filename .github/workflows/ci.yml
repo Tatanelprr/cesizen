@@ -83,7 +83,7 @@ jobs:
         run: npm install -g @railway/cli
 
       - name: Deploiement sur Railway preprod
-        run: railway up --service "${{ secrets.RAILWAY_SERVICE_PREPROD }}" --detach
+        run: railway up --service "${{ secrets.RAILWAY_SERVICE_PREPROD }}" --detach --ci
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_PREPROD }}
 
@@ -101,6 +101,6 @@ jobs:
         run: npm install -g @railway/cli
 
       - name: Deploiement sur Railway prod
-        run: railway up --service "${{ secrets.RAILWAY_SERVICE_PROD }}" --detach
+        run: railway up --service "${{ secrets.RAILWAY_SERVICE_PROD }}" --detach --ci
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_PROD }}
