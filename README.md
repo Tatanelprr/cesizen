@@ -157,6 +157,14 @@ L'application est accessible sur `http://127.0.0.1:8000`
 
 ### Créer la base de test
 
+Copier et compléter le fichier d'environnement de test :
+
+```bash
+cp .env.test.example .env.test
+```
+
+Éditer `.env.test` avec les credentials de ta base de test locale, puis :
+
 ```bash
 php bin/console doctrine:database:create --env=test
 php bin/console doctrine:schema:create --env=test
