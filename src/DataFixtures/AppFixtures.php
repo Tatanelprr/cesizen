@@ -10,11 +10,15 @@ use App\Entity\EmotionCategory;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
-    public function __construct(private UserPasswordHasherInterface $passwordHasher) {}
+    public function __construct(
+        private UserPasswordHasherInterface $passwordHasher,
+        #[Autowire(env: 'FIXTURES_ADMIN_PASSWORD')] private string $adminPassword,
+    ) {}
 
     public function load(ObjectManager $manager): void
     {
@@ -33,7 +37,7 @@ class AppFixtures extends Fixture
         $admin->setEmail('admin@cesizen.fr')
               ->setPseudo('Administrateur')
               ->setRoles(['ROLE_ADMIN'])
-              ->setPassword($this->passwordHasher->hashPassword($admin, 'Admin@cesizen1'));
+              ->setPassword($this->passwordHasher->hashPassword($admin, $this->requirePassword()));
         $manager->persist($admin);
     }
 
@@ -125,5 +129,13 @@ class AppFixtures extends Fixture
                ->setExhale($exhale)->setDescription($desc)->setIsDefault(true);
             $manager->persist($ex);
         }
+    }
+
+    private function requirePassword(): string
+    {
+        if ($this->adminPassword === '') {
+            throw new \RuntimeException('Définir FIXTURES_ADMIN_PASSWORD dans .env.local avant de charger les fixtures.');
+        }
+        return $this->adminPassword;
     }
 }

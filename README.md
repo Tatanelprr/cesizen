@@ -67,6 +67,22 @@ symfony server:start
 
 ---
 
+## Configuration
+
+Les valeurs se définissent dans `.env.local`, qui n'est pas versionné. Les noms des variables sont listés dans `.env.example`. Le fichier `.env` versionné ne contient que des valeurs par défaut, sans secret, comme le veut la convention Symfony.
+
+| Variable | Rôle |
+|---|---|
+| `APP_SECRET` | Secret Symfony (32 caractères aléatoires) |
+| `DATABASE_URL` | Connexion MySQL |
+| `MAILER_DSN` | Envoi des e-mails (`null://null` en local) |
+| `GITHUB_TOKEN` | Token GitHub (scope `repo`) pour le formulaire de feedback |
+| `GITHUB_REPO` | Dépôt qui reçoit les issues de feedback |
+| `FIXTURES_ADMIN_PASSWORD` | Mot de passe du compte admin créé par les fixtures |
+| `FIXTURES_DEMO_PASSWORD` | Mot de passe du compte démo créé par les fixtures |
+
+---
+
 ## Installation locale (développement)
 
 ### 1. Cloner le dépôt
@@ -96,6 +112,8 @@ APP_SECRET=une_chaine_aleatoire_32_caracteres
 MAILER_DSN=null://null
 GITHUB_TOKEN=           # token GitHub avec scope repo — pour le formulaire de feedback
 GITHUB_REPO=Tatanelprr/cesizen
+FIXTURES_ADMIN_PASSWORD=
+FIXTURES_DEMO_PASSWORD=
 ```
 
 > Génère un APP_SECRET : `php -r "echo bin2hex(random_bytes(16));"`
@@ -137,10 +155,12 @@ L'application est accessible sur `http://127.0.0.1:8000`
 
 ## Comptes disponibles
 
-| Rôle | Email | Mot de passe |
-|------|-------|--------------|
-| Administrateur | admin@cesizen.fr | Admin@cesizen1 |
-| Utilisateur démo | demo@cesizen.fr | Demo@cesizen1 |
+Les fixtures créent deux comptes. Leurs mots de passe viennent des variables `FIXTURES_ADMIN_PASSWORD` et `FIXTURES_DEMO_PASSWORD` (voir « Configuration »).
+
+| Rôle | Email |
+|------|-------|
+| Administrateur | admin@cesizen.fr |
+| Utilisateur démo | demo@cesizen.fr |
 
 ---
 

@@ -11,11 +11,15 @@ use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class DemoFixtures extends Fixture implements DependentFixtureInterface
 {
-    public function __construct(private UserPasswordHasherInterface $passwordHasher) {}
+    public function __construct(
+        private UserPasswordHasherInterface $passwordHasher,
+        #[Autowire(env: 'FIXTURES_DEMO_PASSWORD')] private string $demoPassword,
+    ) {}
 
     public function getDependencies(): array
     {
@@ -45,7 +49,7 @@ class DemoFixtures extends Fixture implements DependentFixtureInterface
         $user = new User();
         $user->setEmail('demo@cesizen.fr')
              ->setPseudo('Marie Dupont')
-             ->setPassword($this->passwordHasher->hashPassword($user, 'Demo@cesizen1'));
+             ->setPassword($this->passwordHasher->hashPassword($user, $this->requirePassword()));
         $manager->persist($user);
         return $user;
     }
@@ -202,5 +206,13 @@ class DemoFixtures extends Fixture implements DependentFixtureInterface
         $text = strtr($text, $map);
         $text = preg_replace('/[^a-z0-9]+/', '-', $text);
         return trim($text, '-');
+    }
+
+    private function requirePassword(): string
+    {
+        if ($this->demoPassword === '') {
+            throw new \RuntimeException('Définir FIXTURES_DEMO_PASSWORD dans .env.local avant de charger les fixtures.');
+        }
+        return $this->demoPassword;
     }
 }
