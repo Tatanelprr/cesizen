@@ -24,10 +24,10 @@ CESIZen est une plateforme web de santé mentale commanditée par le Ministère 
 
 ## Déploiement
 
-| Environnement | URL | Branche |
-|---|---|---|
-| **Production** | https://cesizen-prod.up.railway.app | `main` |
-| **Staging / Preprod** | https://cesizen-preprod.up.railway.app | `develop` |
+| Environnement | Branche |
+|---|---|
+| **Production** | `main` |
+| **Staging / Preprod** | `develop` |
 
 Les déploiements sont automatiques via GitHub Actions après validation des tests PHPUnit. Tout ce qui va en production passe d'abord par le staging.
 
@@ -64,15 +64,6 @@ symfony server:start
 ```
 
 `start.ps1` vérifie automatiquement PHP, Composer, Symfony CLI et MySQL, puis ouvre le navigateur sur `http://127.0.0.1:8000`.
-
----
-
-## Utiliser l'application en ligne
-
-L'application est déployée et accessible sans installation :
-
-- **Production** → https://cesizen-prod.up.railway.app
-- **Staging** → https://cesizen-preprod.up.railway.app
 
 ---
 
@@ -236,7 +227,7 @@ La branche `main` exige :
 git checkout -b feature/ma-fonctionnalite develop
 
 # 2. PR feature → develop  →  deploy staging automatique
-# 3. Valider sur https://cesizen-preprod.up.railway.app
+# 3. Valider sur l'environnement de staging
 # 4. PR develop → main  →  deploy production automatique
 ```
 
