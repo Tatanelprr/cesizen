@@ -176,7 +176,7 @@ Résultat attendu : **24 tests, 0 échec**
 
 | Couche | Technologie |
 |--------|-------------|
-| Backend | Symfony 7 + PHP 8.4 |
+| Backend | Symfony 8 + PHP 8.4 |
 | ORM | Doctrine |
 | Base de données | MySQL 8.0 |
 | Frontend | Twig + Bootstrap 5 |
@@ -236,7 +236,7 @@ La branche `main` exige :
 git checkout -b feature/ma-fonctionnalite develop
 
 # 2. PR feature → develop  →  deploy staging automatique
-# 3. Valider sur https://cesizen-staging.up.railway.app
+# 3. Valider sur https://cesizen-preprod.up.railway.app
 # 4. PR develop → main  →  deploy production automatique
 ```
 
